@@ -1,0 +1,31 @@
+<?php
+
+namespace App\Model;
+
+use Illuminate\Database\Eloquent\Model;
+
+class PurchaseBillDetailTranslation extends MainModel
+{
+    protected $table = 'purchase_bill_detail_translation';
+    protected $keyType = 'string';
+    public $incrementing = false;
+    public $timestamps = true;
+    const CREATED_AT = 'created_date';
+    const UPDATED_AT = 'updated_date';
+    protected $fillable = [  
+		"id", 
+		"created_date", 
+		"created_by_id", 
+		"updated_date", 
+		"updated_by_id",
+        "lang_code",
+		"comments", 
+		"bill_detail_id",
+		"is_backup"
+	];
+	
+	protected $casts = [
+		"id" => "string",
+		"is_backup" => "integer"
+	];
+}
