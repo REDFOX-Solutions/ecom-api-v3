@@ -40,33 +40,39 @@ class DynamicDB
         $notSubdomain = ['127', 'www', 'localhost'];  
 
         // throw new CustomException("Route Client: $clientName , Field: $fieldName", 400); 
-         
-        if($hasClient && !in_array($clientName, $notSubdomain)){
 
-            try{
-                $lstClients = Clients::where($fieldName, $clientName)
-                                    ->where("is_active", 1)
-                                    ->get()
-                                    ->toArray();
+        try{
+            if($hasClient && !in_array($clientName, $notSubdomain)){
 
-                //if there are no client match, return default database from env file
-                if(empty($lstClients)){
-                    // return $next($request);
-                    throw new CustomException("We have been unable to find your account! Please contact our support or try again later.", 400); 
+                try{
+                    $lstClients = Clients::where($fieldName, $clientName)
+                                        ->where("is_active", 1)
+                                        ->get()
+                                        ->toArray();
+    
+                    //if there are no client match, return default database from env file
+                    if(empty($lstClients)){
+                        // return $next($request);
+                        throw new CustomException("We have been unable to find your account! Please contact our support or try again later.", 400); 
+                    }
+                }catch(Exception $ex){
+                    return $next($request);
                 }
-            }catch(Exception $ex){
+                
+            }else{  
                 return $next($request);
-            }
-            
-        }else{  
-            return $next($request);
-        } 
+            } 
+    
+            $dbName = $lstClients[0]["db_name"];
+    
+            //here we setup dynamic database name
+            Config::set('database.connections.mysql.database', $dbName);
+            DB::purge('mysql');
 
-        $dbName = $lstClients[0]["db_name"];
-
-        //here we setup dynamic database name
-        Config::set('database.connections.mysql.database', 'redfoxws_' . $dbName);
-        DB::purge('mysql');
+        }catch(\Exception $ex){
+            throw new CustomException("We have been unable to find your account! Please contact our support or try again later.", 400); 
+        }
+        
         return $next($request);
     }
 }
