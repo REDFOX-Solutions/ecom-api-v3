@@ -84,7 +84,7 @@
             <div class="content">
                 <div class="title m-b-md">
                     APIs
-                    <p class="subtitle">Verion 3</p>
+                    <p class="subtitle">Version 3</p>
                 </div>
 
                 <div class="links" style="display: none;">
