@@ -1,0 +1,78 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ecom-api-v3
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: ecom-api-v3
+  template:
+    metadata:
+      labels:
+        app: ecom-api-v3
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/path: /metrics
+        prometheus.io/port: "80"
+    spec:
+      volumes:
+        - name: logs
+          emptyDir: { }
+        - name: cache
+          emptyDir: { }
+        - name: testing
+          emptyDir: { }
+        - name: sessions
+          emptyDir: { }
+        - name: views
+          emptyDir: { }
+      securityContext:
+        fsGroup: 82
+      initContainers:
+        - name: database-migrations
+          image: dorkden/ecom-api-v3-fpm:v1.0.0
+          imagePullPolicy: IfNotPresent
+          envFrom:
+            - configMapRef:
+                name: ecom-api-v3-configmap
+            - secretRef:
+                name: ecom-api-v3-configmap
+          command:
+            - "php"
+          args:
+            - "artisan"
+            - "migrate"
+            - "--force"
+      containers:
+        - name: nginx
+          imagePullPolicy: IfNotPresent
+          image: dorkden/ecom-api-v3-nginx:latest
+          resources: {}
+          ports:
+            - containerPort: 80
+        - name: fpm
+          imagePullPolicy: IfNotPresent
+          envFrom:
+            - configMapRef:
+                name: ecom-api-v3-configmap
+            - secretRef:
+                name: ecom-api-v3-configmap
+          securityContext:
+            runAsUser: 82
+            readOnlyRootFilesystem: true
+          volumeMounts:
+            - name: logs
+              mountPath: /var/www/html/storage/logs
+            - name: cache
+              mountPath: /var/www/html/storage/framework/cache
+            - name: sessions
+              mountPath: /var/www/html/storage/framework/sessions
+            - name: views
+              mountPath: /var/www/html/storage/framework/views
+            - name: testing
+              mountPath: /var/www/html/storage/framework/testing
+          resources: { }
+          image: dorkden/ecom-api-v3-fpm:v1.0.0
+          ports:
+            - containerPort: 9000

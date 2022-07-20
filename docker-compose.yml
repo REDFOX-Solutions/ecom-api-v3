@@ -2,17 +2,15 @@ version: "3"
 services:
 
   #PHP Service
-  app:
+  fpm:
     build:
       context: .
-      dockerfile: Dockerfile
-    image: dorkden/v2r
-    container_name: app
+      dockerfile: resources/ops/docker/fpm/Dockerfile
+    image: dorkden/ecom-api-v3-fpm
+    container_name: fpm
     restart: unless-stopped
     tty: true
     environment:
-      SERVICE_NAME: app
-      SERVICE_TAGS: dev
       APP_KEY: ${APP_KEY}
       APP_ENV: ${APP_ENV}
       APP_DEBUG: ${APP_DEBUG}
@@ -27,8 +25,15 @@ services:
       - app-network
     volumes:
       - ./:/var/www/html/
-      - ./php/laravel.ini:/usr/local/etc/php/conf.d/laravel.ini
 
+  db:
+    image: postgres:10.21-alpine
+    restart: unless-stopped
+    networks:
+      - app-network
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
 
   #Nginx Service
   webserver:
@@ -40,7 +45,7 @@ services:
       - "8080:80"
     volumes:
       - ./:/var/www/html
-      - ./nginx/conf.d/:/etc/nginx/conf.d/
+      - ./resources/ops/docker/nginx/vhost.conf:/etc/nginx/conf.d/default.conf
     networks:
       - app-network
 

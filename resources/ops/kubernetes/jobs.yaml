@@ -1,0 +1,25 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: ecom-api-v3
+spec:
+  schedule: "* * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+            - name: scheduled
+              image: ecom-api-v3-fpm:latest
+              imagePullPolicy: Never
+              envFrom:
+                - configMapRef:
+                    name: laravel
+                - secretRef:
+                    name: laravel
+              command:
+                - "php"
+              args:
+                - "artisan"
+                - "schedule:run"
+          restartPolicy: OnFailure

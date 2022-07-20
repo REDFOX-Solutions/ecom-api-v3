@@ -57,9 +57,17 @@ class AggregatorController extends RestAPI
 
         $txnDate = Carbon::parse($data['txn_date'])->format('Y-m-d');
 
+        $db_start_1 = hrtime(true);
+
         $aggregator = Aggregator::whereDate('txn_date', '=', $txnDate)->first();
 
+        $db_end_1 = hrtime(true);
+
+        $db_eta_1 = $db_end_1 - $db_start_1;
+
         if ($aggregator != null) {
+
+            $s3_start = hrtime(true);
 
             $readFile = Storage::disk('s3')->read($aggregator->file_name);
 
@@ -69,13 +77,29 @@ class AggregatorController extends RestAPI
 
             $json = json_encode($jsonContents);
             Storage::disk('s3')->update($aggregator->file_name, $json);
+
+            $s3_end = hrtime(true);
+
+            $s3_eta = $s3_end - $s3_start;
+
+            $aggregator['db_execute_time'] = $db_eta_1 / 1e+6;
+            $aggregator['s3_execute_time'] = $s3_eta / 1e+6;
+
         } else {
             $filePath = $branch . '/' . $txnDate . '/' . Str::random(40) . '.json';
 
             $jsonContents = [$data];
             $json = json_encode($jsonContents);
 
+            $s3_start = hrtime(true);
+
             Storage::disk('s3')->put($filePath, $json);
+
+            $s3_end = hrtime(true);
+
+            $s3_eta = $s3_end - $s3_start;
+
+            $aggregator['s3_execute_time'] = $s3_eta / 1e+6;
 
             $aggregator = new Aggregator();
             $aggregator->fill([
@@ -85,7 +109,16 @@ class AggregatorController extends RestAPI
                 'txn_date' => $data['txn_date'],
             ]);
 
+            $db_start_2 = hrtime(true);
+
             $aggregator->save();
+
+            $db_end_2 = hrtime(true);
+
+            $db_eta_2 = $db_end_2 - $db_start_2;
+
+            $aggregator['db_execute_time'] = (($db_eta_1 + $db_eta_2) / 2) / 1e+6;
+
         }
 
         return response()->json($aggregator);
@@ -93,8 +126,29 @@ class AggregatorController extends RestAPI
 
     public function show($id)
     {
+        $data = [];
+
+        $db_start_2 = hrtime(true);
+
         $aggregator = Aggregator::findOrFail($id);
+
+        $db_end_2 = hrtime(true);
+
+        $db_eta_2 = $db_end_2 - $db_start_2;
+
+
+        $s3_start_2 = hrtime(true);
+
         $readFile = Storage::disk('s3')->read($aggregator->file_name);
-        return response()->json(json_decode($readFile));
+
+        $s3_end_2 = hrtime(true);
+
+        $s3_eta_2 = $s3_end_2 - $s3_start_2;
+
+        $data['s3_execute_time'] = $s3_eta_2 / 1e+6;
+        $data['db_execute_time'] = $db_eta_2 / 1e+6;
+        $data['data'] = json_decode($readFile);
+
+        return response()->json($data);
     }
 }

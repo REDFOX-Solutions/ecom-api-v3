@@ -1,0 +1,52 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ecom-api-v3-configmap
+data:
+  APP_NAME: ecom-api-v3
+  APP_ENV: production
+  APP_DEBUG: "false"
+  APP_URL: http://localhost:8080
+
+  LOG_CHANNEL: stdout
+  LOG_LEVEL: debug
+
+  DB_CONNECTION: mysql
+  DB_HOST: "db-mysql-sgp1-94165-do-user-6057037-0.b.db.ondigitalocean.com"
+  DB_PORT: "25060"
+  DB_DATABASE: dockerlaravel
+  DB_USERNAME: mladmin
+  DB_PASSWORD: "AVNS_D4op-s2GzR0SgTvt6iY"
+
+  BROADCAST_DRIVER: log
+
+  CACHE_DRIVER: file
+  QUEUE_CONNECTION: sync
+
+  SESSION_DRIVER: file
+  SESSION_LIFETIME: "120"
+
+  MAIL_MAILER: smtp
+  MAIL_HOST: smtp.mailtrap.io
+  MAIL_PORT: "2525"
+  MAIL_USERNAME: 972f006c1cc75c
+  MAIL_PASSWORD: 6c727555190e21
+  MAIL_ENCRYPTION: tls
+
+  PROMETHEUS_NAMESPACE: default
+  PROMETHEUS_METRICS_ROUTE_ENABLED: "true"
+  PROMETHEUS_METRICS_ROUTE_PATH: metrics
+  PROMETHEUS_METRICS_ROUTE_MIDDLEWARE: "null"
+  PROMETHEUS_STORAGE_ADAPTER: memory
+
+  REDIS_HOST: redis-master
+  REDIS_PORT: "6379"
+  PROMETHEUS_REDIS_PREFIX: PROMETHEUS_
+
+  AWS_ACCESS_KEY_ID: AKIAU5J3OXIVMEFDUO7G
+  AWS_SECRET_ACCESS_KEY: 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
+  AWS_DEFAULT_REGION: ap-southeast-1
+  AWS_BUCKET: bkv2r
+  AWS_URL: https://bkv2r.s3.ap-southeast-1.amazonaws.com
+
+  
