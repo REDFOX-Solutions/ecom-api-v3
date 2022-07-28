@@ -1,5 +1,6 @@
 <?php
 
+use App\Model\Task;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder

@@ -10,13 +10,13 @@ spec:
         spec:
           containers:
             - name: scheduled
-              image: ecom-api-v3-fpm:latest
-              imagePullPolicy: Never
+              image: dorkden/ecom-api-v3-fpm:latest
+              imagePullPolicy: IfNotPresent
               envFrom:
                 - configMapRef:
-                    name: laravel
+                    name: ecom-api-v3-configmap
                 - secretRef:
-                    name: laravel
+                    name: ecom-api-v3-configmap
               command:
                 - "php"
               args:

@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: ecom-api-v3
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: ecom-api-v3
@@ -31,7 +31,7 @@ spec:
         fsGroup: 82
       initContainers:
         - name: database-migrations
-          image: dorkden/ecom-api-v3-fpm:v1.0.0
+          image: dorkden/ecom-api-v3-fpm:latest
           imagePullPolicy: IfNotPresent
           envFrom:
             - configMapRef:
@@ -52,6 +52,7 @@ spec:
           ports:
             - containerPort: 80
         - name: fpm
+          image: dorkden/ecom-api-v3-fpm:latest
           imagePullPolicy: IfNotPresent
           envFrom:
             - configMapRef:
@@ -73,6 +74,5 @@ spec:
             - name: testing
               mountPath: /var/www/html/storage/framework/testing
           resources: { }
-          image: dorkden/ecom-api-v3-fpm:v1.0.0
           ports:
             - containerPort: 9000

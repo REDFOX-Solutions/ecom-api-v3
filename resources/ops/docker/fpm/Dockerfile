@@ -35,11 +35,16 @@ COPY /app app
 COPY /config config
 COPY /routes routes
 
-
 COPY . /var/www/html
 
 RUN composer dump-autoload -o
 
+#COPY ./entrypoint.sh /entrypoint.sh
+#RUN chmod +x /entrypoint.sh
+#RUN ./entrypoint.sh
+
 FROM build-fpm AS fpm
 
 COPY --from=build-fpm /var/www/html /var/www/html
+
+# Init cron job
